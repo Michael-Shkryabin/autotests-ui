@@ -11,7 +11,7 @@ class CoursesListPage(BasePage):
 
         self.course_title = page.get_by_test_id('course-widget-title-text')
         self.course_image = page.get_by_test_id('course-preview-image')
-        self.course_max_text = page.get_by_test_id('course-max-score-info-row-view-icon')
+        self.course_max_text = page.get_by_test_id('course-max-score-info-row-view-text')
         self.course_min_text = page.get_by_test_id('course-min-score-info-row-view-text')
         self.course_estimated_time_text = page.get_by_test_id('course-estimated-time-info-row-view-text')
 
@@ -49,7 +49,7 @@ class CoursesListPage(BasePage):
             self,
             index: int,
             title: str,
-            max_score:str,
+            max_score: str,
             min_score: str,
             estimated_time: str
     ):
