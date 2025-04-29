@@ -3,6 +3,7 @@ import pytest
 from pages.courses.courses_list_page import CoursesListPage
 from pages.courses.create_course_page import CreateCoursePage
 from pages.dashboard.dashboard_page import DashboardPage
+from playwright_courses import description_text
 
 
 @pytest.mark.courses
@@ -51,3 +52,44 @@ class TestCourses:
             min_score='10',
             estimated_time='2 weeks'
         )
+
+    def test_edit_course(self, courses_list_page: CoursesListPage, create_course_page: CreateCoursePage):
+        create_course_page.visit('https://nikita-filonov.github.io/qa-automation-engineer-ui-course/#/courses/create')
+        create_course_page.fill_create_course_form.fill(
+            title='Playwright',
+            estimated_time='1 weeks',
+            description='Playwright',
+            max_score='100',
+            min_score='10'
+        )
+        create_course_page.image_upload_widget.upload_preview_image('./testdata/files/image.png')
+        create_course_page.create_course_toolbar.click_create_course_button()
+
+        courses_list_page.course_view.check_visible(
+            0,
+            title='Playwright',
+            max_score='100',
+            min_score='10',
+            estimated_time='1 weeks'
+        )
+
+        courses_list_page.course_menu.menu_button.click()
+        courses_list_page.course_menu.edit_menu_button.click()
+
+        create_course_page.fill_create_course_form.fill(
+            title='Playwright 2',
+            estimated_time='2 weeks',
+            description='Playwright 2',
+            max_score='101',
+            min_score='11'
+        )
+        create_course_page.create_course_toolbar.click_create_course_button()
+
+        courses_list_page.course_view.check_visible(
+            0,
+            title='Playwright 2',
+            max_score='101',
+            min_score='11',
+            estimated_time='2 weeks'
+        )
+
