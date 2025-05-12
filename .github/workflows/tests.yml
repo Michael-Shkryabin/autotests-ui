@@ -29,22 +29,52 @@ jobs:
       - name: Run Playwright tests with pytest and generate Allure results
         run: |
           pytest -m regression --alluredir=./allure-results --numprocesses 2
+
+      - name: Restore Coverage history
+        uses: actions/cache/restore@v4
+        with:
+          path: coverage-history.json
+          key: coverage-history-${{ github.run_id }}
+          restore-keys: |
+            coverage-history-
+
+      - name: Generate Coverage report
+        run: |
+          ui-coverage-tool save-report
           
+      - name: Cache Coverage history
+        if: always()
+        id: cache-primes-save
+        uses: actions/cache/save@v4
+        with:
+          path: coverage-history.json
+          key: coverage-history-${{ github.run_id }}
+
+      - name: Upload Coverage results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.html
+
       - name: Upload Allure results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: allure-results
           path: allure-results
 
-      
 
   publish-report:
+    needs: [ run-tests ]
     runs-on: ubuntu-latest
-    needs: run-test
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
 
       - name: Download Allure results
         uses: actions/download-artifact@v4
@@ -52,16 +82,7 @@ jobs:
           name: allure-results
           path: allure-results
 
-      - name: Get Allure history
-        uses: actions/checkout@v3
-        if: always()
-        continue-on-error: true
-        with:
-          ref: gh-pages
-          path: gh-pages
-
-
-      - name: Allure Report action from marketplace
+      - name: Generates Allure Report with history
         uses: simple-elf/allure-report-action@v1.7
         if: always()
         with:
@@ -69,8 +90,9 @@ jobs:
           allure_history: allure-history
 
       - name: Deploy report to Github Pages
-        uses: peaceiris/actions-gh-pages@v2
-        env:
-          PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PUBLISH_BRANCH: gh-pages
-          PUBLISH_DIR: allure-history
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history
