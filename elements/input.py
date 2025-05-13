@@ -26,7 +26,7 @@ class Input(BaseElement):
             logger.info(step)
             locator.fill(value)
 
-        self.track_coverage(ActionType.FILL, nth, **kwargs)
+        self.track_coverage(ActionType.FILL, nth, **kwargs )
 
     def check_have_value(self, value: str, nth: int = 0, **kwargs):
         step = f'Checking that {self.type_of} "{self.name}" has a value "{value}"'
